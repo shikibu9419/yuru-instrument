@@ -33,7 +33,6 @@ public class Circling : MonoBehaviour {
 
     void Update()
     {
-        updateCircleCount();
         if (cm.synced)
         {
             for (int i = 0; i < cm.navigators.Count; i++)
@@ -41,25 +40,6 @@ public class Circling : MonoBehaviour {
                 var navi = cm.navigators[i];
                 var mv = navi.Navi2Target(Vector.fromRadMag(Time.time / 1, getRadius()) + getCenterByIndex(i), maxSpd: 60, tolerance: 50).Exec();
             }
-        }
-    }
-
-    private void updateCircleCount()
-    {
-        switch (dropdown.value)
-        {
-            case 0:
-                this.circleCount = 1;
-                break;
-            case 1:
-                this.circleCount = 2;
-                break;
-            case 2:
-                this.circleCount = 4;
-                break;
-            default:
-                this.circleCount = 1;
-                break;
         }
     }
 
@@ -88,6 +68,25 @@ public class Circling : MonoBehaviour {
                 }[index % 4];
             default:
                 return new Vector(250, 250);
+        }
+    }
+
+    public void onUpdateDropdown()
+    {
+        switch (dropdown.value)
+        {
+            case 0:
+                this.circleCount = 1;
+                break;
+            case 1:
+                this.circleCount = 2;
+                break;
+            case 2:
+                this.circleCount = 4;
+                break;
+            default:
+                this.circleCount = 1;
+                break;
         }
     }
 }
