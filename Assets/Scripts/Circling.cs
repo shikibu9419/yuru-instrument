@@ -1,25 +1,28 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
 using toio;
 using toio.Navigation;
 using toio.MathUtils;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 
 public class Circling : MonoBehaviour {
     CubeManager cm;
 
+    [SerializeField] private Dropdown dropdown;
+    public ConnectType connectType;
     public Navigator.Mode naviMode = Navigator.Mode.BOIDS;
+    private int circleCount = 1;
     private int[] nextPositions = new int[] { 0, 0, 0, 0 };
-    private int circleCount = 4;
 
     async void Start()
     {
         QualitySettings.vSyncCount = 0;
         Application.targetFrameRate = 60;
 
-        cm = new CubeManager(ConnectType.Real);
-        await cm.MultiConnect(4);
+        cm = new CubeManager(connectType);
+        await cm.MultiConnect(6);
 
         foreach (var navi in cm.navigators)
         {
@@ -30,6 +33,7 @@ public class Circling : MonoBehaviour {
 
     void Update()
     {
+        updateCircleCount();
         if (cm.synced)
         {
             for (int i = 0; i < cm.navigators.Count; i++)
@@ -37,6 +41,25 @@ public class Circling : MonoBehaviour {
                 var navi = cm.navigators[i];
                 var mv = navi.Navi2Target(Vector.fromRadMag(Time.time / 1, getRadius()) + getCenterByIndex(i), maxSpd: 60, tolerance: 50).Exec();
             }
+        }
+    }
+
+    private void updateCircleCount()
+    {
+        switch (dropdown.value)
+        {
+            case 0:
+                this.circleCount = 1;
+                break;
+            case 1:
+                this.circleCount = 2;
+                break;
+            case 2:
+                this.circleCount = 4;
+                break;
+            default:
+                this.circleCount = 1;
+                break;
         }
     }
 
@@ -55,14 +78,14 @@ public class Circling : MonoBehaviour {
                 return new Vector[] {
                     new Vector(250, 150),
                     new Vector(250, 360),
-                }[index];
+                }[index % 2];
             case 4:
                 return new Vector[] {
                     new Vector(150, 150),
                     new Vector(360, 150),
                     new Vector(150, 360),
                     new Vector(360, 360),
-                }[index];
+                }[index % 4];
             default:
                 return new Vector(250, 250);
         }
