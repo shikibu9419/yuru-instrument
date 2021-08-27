@@ -4,5 +4,11 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/ARTest.unity
+    guid: 3bfe52bc5b49f4a93b21cb1f0ba56725
+  - enabled: 0
+    path: Assets/Scenes/Circling.unity
+    guid: a296dcceaf1e6415aaaf281e722f6f28
   m_configObjects: {}
