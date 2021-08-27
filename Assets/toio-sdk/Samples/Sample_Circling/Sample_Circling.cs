@@ -6,7 +6,7 @@ using toio.MathUtils;
 public class Sample_Circling : MonoBehaviour
 {
     CubeManager cm;
-    int N = 4;
+    int N = 16;
 
     public Navigator.Mode naviMode = Navigator.Mode.BOIDS;
 
@@ -15,7 +15,7 @@ public class Sample_Circling : MonoBehaviour
         QualitySettings.vSyncCount = 0;
         Application.targetFrameRate = 60;
 
-        cm = new CubeManager(ConnectType.Real);
+        cm = new CubeManager();
         await cm.MultiConnect(N);
 
         foreach (var navi in cm.navigators)
