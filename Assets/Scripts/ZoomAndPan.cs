@@ -10,9 +10,8 @@ using toio.MathUtils;
 public class ZoomAndPan : MonoBehaviour {
     CubeManager cm;
 
-    [SerializeField] private Dropdown dropdown;
     public ConnectType connectType;
-    public Navigator.Mode naviMode = Navigator.Mode.BOIDS;
+    public Navigator.Mode naviMode = Navigator.Mode.AVOID;
     private Vector[,] positions = new Vector[,] {
         { new Vector(10, 10), new Vector(10, 500), new Vector(500, 10), new Vector(500, 500), new Vector(200, 250), new Vector(300, 250) },
         { new Vector(150, 250), new Vector(250, 150), new Vector(500, 500), new Vector(500, 10), new Vector(10, 500), new Vector(10, 10) },
@@ -44,7 +43,7 @@ public class ZoomAndPan : MonoBehaviour {
             for (int i = 0; i < cm.navigators.Count; i++)
             {
                 var navi = cm.navigators[i];
-                navi.Navi2Target(positions[nowMode, i], maxSpd: 60).Exec();
+                navi.Navi2Target(positions[nowMode, i], maxSpd: 115).Exec();
             }
         }
     }
