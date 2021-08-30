@@ -61,7 +61,7 @@ with mp_hands.Hands(
         distance = math.sqrt(math.pow(thumb_tip_coods.x - index_tip_coods.x, 2) + math.pow(thumb_tip_coods.y - index_tip_coods.y, 2))
 
         sendtext = '{:.3f}'.format(distance)
-        client.sendto(sendtext.encode(),(host, port))
+        client.sendto(sendtext.encode(), (host, port))
 
     cv2.imshow('MediaPipe Hands', image)
     if cv2.waitKey(5) & 0xFF == 27:

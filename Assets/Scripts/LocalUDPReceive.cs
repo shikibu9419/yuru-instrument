@@ -21,8 +21,8 @@ public class LocalUDPReceive : MonoBehaviour
     static UdpClient udpUnity;
     Thread thread;
 
-    static string Rtext = "from";
-    static public byte[] data = System.Text.Encoding.GetEncoding("utf-8").GetBytes("abcd");
+    private float formationScale = 0.0f;
+    public float FormationScale { get; set; }
 
     void Start()
     {
@@ -42,7 +42,7 @@ public class LocalUDPReceive : MonoBehaviour
         if (udpUnity != null) udpUnity.Close();
     }
 
-    private static void ThreadMethod()
+    private void ThreadMethod()
     {
         while (isReceiving)
         {
@@ -50,8 +50,7 @@ public class LocalUDPReceive : MonoBehaviour
             {
                 IPEndPoint remoteEP = null;
                 byte[] data = udpUnity.Receive(ref remoteEP);
-                Rtext = Encoding.UTF8.GetString(data);
-                Debug.Log(Rtext);
+                FormationScale = float.Parse(Encoding.UTF8.GetString(data));
             }
             catch (System.Exception e)
             {

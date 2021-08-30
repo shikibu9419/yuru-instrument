@@ -10,11 +10,21 @@ using toio.MathUtils;
 public class ZoomAndPan : MonoBehaviour {
     CubeManager cm;
 
+    public LocalUDPReceive udpReceive;
     public ConnectType connectType;
     public Navigator.Mode naviMode = Navigator.Mode.AVOID;
+
     private Vector[,] positions = new Vector[,] {
-        { new Vector(10, 10), new Vector(10, 500), new Vector(500, 10), new Vector(500, 500), new Vector(200, 250), new Vector(300, 250) },
-        { new Vector(150, 250), new Vector(250, 150), new Vector(500, 500), new Vector(500, 10), new Vector(10, 500), new Vector(10, 10) },
+        { new Vector(200, 200), new Vector(200, 300), new Vector(300, 300), new Vector(300, 200) },
+        { new Vector(200, 300), new Vector(300, 300), new Vector(300, 200), new Vector(200, 200) },
+        { new Vector(300, 300), new Vector(300, 200), new Vector(200, 200), new Vector(200, 300) },
+        { new Vector(300, 200), new Vector(200, 200), new Vector(200, 300), new Vector(300, 300) },
+    };
+    private Vector[] dPositions = new Vector[] {
+        new Vector(-1, -1),
+        new Vector(-1, 1),
+        new Vector(1, 1),
+        new Vector(1, -1),
     };
     private int nowMode = 0;
 
@@ -24,7 +34,7 @@ public class ZoomAndPan : MonoBehaviour {
         Application.targetFrameRate = 60;
 
         cm = new CubeManager(connectType);
-        await cm.MultiConnect(6);
+        await cm.MultiConnect(4);
 
         for (int i = 0; i < cm.navigators.Count; i++)
         {
@@ -40,10 +50,13 @@ public class ZoomAndPan : MonoBehaviour {
     {
         if (cm.synced)
         {
+            float scale = udpReceive.FormationScale;
+
             for (int i = 0; i < cm.navigators.Count; i++)
             {
+                Vector dPos = dPositions[i] * scale * 500.0f;
                 var navi = cm.navigators[i];
-                navi.Navi2Target(positions[nowMode, i], maxSpd: 115).Exec();
+                navi.Navi2Target(positions[nowMode, i] + dPos, maxSpd: 115).Exec();
             }
         }
     }
@@ -53,7 +66,7 @@ public class ZoomAndPan : MonoBehaviour {
         if (c.isDoubleTap)
         {
             c.PlayPresetSound(0);
-            nowMode = (nowMode + 1) % 2;
+            nowMode = (nowMode + 1) % 4;
         }
         else
         {
