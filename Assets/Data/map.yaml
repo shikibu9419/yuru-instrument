@@ -1,20 +1,20 @@
 landmarks:
   - id: 1
     name: spot1
-    x: 10
-    y: 10
+    x: 100
+    y: 100
   - id: 2
     name: spot2
-    x: 10
-    y: 450
+    x: 100
+    y: 400
   - id: 3
     name: spot3
-    x: 450
-    y: 10
+    x: 400
+    y: 100
   - id: 4
     name: spot4
-    x: 450
-    y: 450
+    x: 400
+    y: 400
 
 paths:
   - from: 1

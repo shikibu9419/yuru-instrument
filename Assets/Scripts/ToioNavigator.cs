@@ -22,16 +22,15 @@ public class ToioNavigator : MonoBehaviour {
         QualitySettings.vSyncCount = 0;
         Application.targetFrameRate = 60;
 
-        map = Map.fromYaml();
+        map = Map.InitFromYaml();
         navigation = new MapNavigation(new int[] { 1, 2, 4 });
 
         cm = new CubeManager(connectType);
-        await cm.MultiConnect(1);
+        await cm.SingleConnect();
 
         foreach (var navi in cm.navigators)
         {
             navi.usePred = true;
-            navi.mode = naviMode;
         }
     }
 
@@ -40,9 +39,12 @@ public class ToioNavigator : MonoBehaviour {
         if (!cm.synced)
             return;
 
-        var navi = cm.navigators[0];
-        var mv = navi.Navi2Target(map.getLandmark(navigation).GetPosition(), maxSpd: 60).Exec();
-        if (mv.reached)
-            navigation.Next();
+        foreach (var navi in cm.navigators)
+        {
+            var pos = map.GetLandmark(navigation).GetPosition();
+            var mv = navi.Navi2Target(pos).Exec();
+            if (mv.reached)
+                navigation.Next();
+        }
     }
 }

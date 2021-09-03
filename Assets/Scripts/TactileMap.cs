@@ -1,10 +1,9 @@
 using System;
 using System.IO;
 using System.Linq;
-using UnityEngine;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
-
+using toio.MathUtils;
 
 namespace TactileMap
 {
@@ -12,23 +11,23 @@ namespace TactileMap
   {
       public int[] Route;
       public bool Reached;
-      public int NextLandmarkId { get { return Route[nextLandmarkIndex]; } }
+      public int NextLandmarkId { get { return Route[nextRouteIndex]; } }
 
-      private int nextLandmarkIndex;
+      private int nextRouteIndex;
 
       public MapNavigation(int[] route)
       {
           Route = route;
           Reached = false;
-          nextLandmarkIndex = route[0];
+          nextRouteIndex = 0;
       }
 
       public void Next()
       {
-          if (Route.Length == nextLandmarkIndex - 1)
+          if (Route.Length == nextRouteIndex + 1)
               Reached = true;
           else
-              nextLandmarkIndex++;
+              nextRouteIndex++;
       }
   }
 
@@ -47,7 +46,7 @@ namespace TactileMap
           Y = y;
       }
 
-      public UnityEngine.Vector2 GetPosition() => new UnityEngine.Vector2(X, Y);
+      public Vector GetPosition() => new Vector(X, Y);
   }
 
   public struct LandmarkPath
@@ -68,7 +67,7 @@ namespace TactileMap
       public LandmarkPath[] Paths { get; set; }
 
       private static string YAML_PATH = "Assets/Data/";
-      public static Map fromYaml() {
+      public static Map InitFromYaml() {
           StreamReader reader = new StreamReader(YAML_PATH + "map.yaml", System.Text.Encoding.UTF8);
           string text = reader.ReadToEnd();
           var input = new StringReader(text);
@@ -79,7 +78,7 @@ namespace TactileMap
           return deserializer.Deserialize<Map>(input);
       }
 
-      public Landmark getLandmark(MapNavigation navi)
+      public Landmark GetLandmark(MapNavigation navi)
       {
           return Array.Find(Landmarks, landmark => landmark.Id == navi.NextLandmarkId);
       }
