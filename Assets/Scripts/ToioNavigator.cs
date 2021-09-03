@@ -8,15 +8,14 @@ using toio.Navigation;
 using toio.MathUtils;
 using TactileMap;
 
-public class Navigation : MonoBehaviour {
+public class ToioNavigator : MonoBehaviour {
     CubeManager cm;
 
     public ConnectType connectType;
     public Navigator.Mode naviMode = Navigator.Mode.BOIDS;
 
     private Map map;
-    private Route route;
-    private int nextLandmark;
+    private MapNavigation navigation;
 
     async void Start()
     {
@@ -24,8 +23,7 @@ public class Navigation : MonoBehaviour {
         Application.targetFrameRate = 60;
 
         map = Map.fromYaml();
-        route = new Route(new int[] { 1, 2, 4 });
-        nextLandmark = 1;
+        navigation = new MapNavigation(new int[] { 1, 2, 4 });
 
         cm = new CubeManager(connectType);
         await cm.MultiConnect(1);
@@ -43,8 +41,8 @@ public class Navigation : MonoBehaviour {
             return;
 
         var navi = cm.navigators[0];
-        var mv = navi.Navi2Target(map.getLandmark(route).GetPosition(), maxSpd: 30).Exec();
+        var mv = navi.Navi2Target(map.getLandmark(navigation).GetPosition(), maxSpd: 60).Exec();
         if (mv.reached)
-            route.Next();
+            navigation.Next();
     }
 }
