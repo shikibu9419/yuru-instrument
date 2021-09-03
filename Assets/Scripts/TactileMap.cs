@@ -11,9 +11,9 @@ namespace TactileMap
     public struct Landmark
     {
         public int Id { get; set; }
+        public int X  { get; set; }
+        public int Y  { get; set; }
         public string Name { get; set; }
-        public int X { get; set; }
-        public int Y { get; set; }
 
         public Vector Position { get => new Vector(X, Y); }
 
@@ -29,8 +29,8 @@ namespace TactileMap
     // 地点同士を結ぶ道
     public struct LandmarkPath
     {
-        public int From;
-        public int To;
+        public int From { get; set; }
+        public int To   { get; set; }
 
         public LandmarkPath(int from, int to)
         {
@@ -63,8 +63,8 @@ namespace TactileMap
     {
         // 経路 (地点IDの配列で表現)
         public int[] Route { get; set; }
-        public bool Reached { get; set; }
-        public int NextLandmarkId { get => Route[nextRouteIndex]; }
+        public bool  Reached { get; set; }
+        public int   NextLandmarkId { get => Route[nextRouteIndex]; }
         public Landmark NextLandmark
         {
             get {
