@@ -7,80 +7,89 @@ using toio.MathUtils;
 
 namespace TactileMap
 {
-  public struct MapNavigation
-  {
-      public int[] Route;
-      public bool Reached;
-      public int NextLandmarkId { get { return Route[nextRouteIndex]; } }
+    // 地図における各地点 (建物, 曲がり角etc.)
+    public struct Landmark
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public int X { get; set; }
+        public int Y { get; set; }
 
-      private int nextRouteIndex;
+        public Vector Position { get => new Vector(X, Y); }
 
-      public MapNavigation(int[] route)
-      {
-          Route = route;
-          Reached = false;
-          nextRouteIndex = 0;
-      }
+        public Landmark(int id, int x, int y, string name)
+        {
+            Id = id;
+            Name = name;
+            X = x;
+            Y = y;
+        }
+    }
 
-      public void Next()
-      {
-          if (Route.Length == nextRouteIndex + 1)
-              Reached = true;
-          else
-              nextRouteIndex++;
-      }
-  }
+    // 地点同士を結ぶ道
+    public struct LandmarkPath
+    {
+        public int From;
+        public int To;
 
-  public struct Landmark
-  {
-      public int Id { get; set; }
-      public string Name { get; set; }
-      public int X { get; set; }
-      public int Y { get; set; }
+        public LandmarkPath(int from, int to)
+        {
+            From = from;
+            To = to;
+        }
+    }
 
-      public Landmark(int id, int x, int y, string name)
-      {
-          Id = id;
-          Name = name;
-          X = x;
-          Y = y;
-      }
+    // 地図 = 全地点とそれらを結ぶ道の集合
+    public class Map
+    {
+        public Landmark[] Landmarks { get; set; }
+        public LandmarkPath[] Paths { get; set; }
 
-      public Vector GetPosition() => new Vector(X, Y);
-  }
+        private static string YAML_PATH = "Assets/Data/";
+        public static Map InitFromYaml() {
+            StreamReader reader = new StreamReader(YAML_PATH + "map.yaml", System.Text.Encoding.UTF8);
+            string text = reader.ReadToEnd();
+            var input = new StringReader(text);
+            var deserializer = new DeserializerBuilder()
+                .WithNamingConvention(new CamelCaseNamingConvention())
+                .Build();
 
-  public struct LandmarkPath
-  {
-      public int From;
-      public int To;
+            return deserializer.Deserialize<Map>(input);
+        }
+    }
 
-      public LandmarkPath(int from, int to)
-      {
-          From = from;
-          To = to;
-      }
-  }
+    // 地図上のある経路のナビゲーション
+    public struct MapNavigation
+    {
+        // 経路 (地点IDの配列で表現)
+        public int[] Route { get; set; }
+        public bool Reached { get; set; }
+        public int NextLandmarkId { get => Route[nextRouteIndex]; }
+        public Landmark NextLandmark
+        {
+            get {
+                int nextLandmarkId = this.NextLandmarkId;
+                return Array.Find(map.Landmarks, landmark => landmark.Id == nextLandmarkId);
+            }
+        }
 
-  public class Map
-  {
-      public Landmark[] Landmarks { get; set; }
-      public LandmarkPath[] Paths { get; set; }
+        private Map map;
+        private int nextRouteIndex;
 
-      private static string YAML_PATH = "Assets/Data/";
-      public static Map InitFromYaml() {
-          StreamReader reader = new StreamReader(YAML_PATH + "map.yaml", System.Text.Encoding.UTF8);
-          string text = reader.ReadToEnd();
-          var input = new StringReader(text);
-          var deserializer = new DeserializerBuilder()
-              .WithNamingConvention(new CamelCaseNamingConvention())
-              .Build();
+        public MapNavigation(Map map, int[] route)
+        {
+            this.map = map;
+            Route = route;
+            Reached = false;
+            nextRouteIndex = 0;
+        }
 
-          return deserializer.Deserialize<Map>(input);
-      }
-
-      public Landmark GetLandmark(MapNavigation navi)
-      {
-          return Array.Find(Landmarks, landmark => landmark.Id == navi.NextLandmarkId);
-      }
-  }
+        public void Next()
+        {
+            if (Route.Length == nextRouteIndex + 1)
+                Reached = true;
+            else
+                nextRouteIndex++;
+        }
+    }
 }
