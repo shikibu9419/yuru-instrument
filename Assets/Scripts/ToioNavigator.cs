@@ -11,6 +11,7 @@ using TactileMap;
 public class ToioNavigator : MonoBehaviour {
     CubeManager cm;
 
+    [SerializeField] private Dropdown dropdown;
     public ConnectType connectType;
     public Navigator.Mode naviMode = Navigator.Mode.BOIDS;
 
@@ -23,7 +24,7 @@ public class ToioNavigator : MonoBehaviour {
         Application.targetFrameRate = 60;
 
         map = Map.InitFromYaml();
-        navigation = map.GetNavigation(1, 4);
+        navigation = map.GetNavigation(1, 1);
 
         cm = new CubeManager(connectType);
         await cm.SingleConnect();
@@ -37,6 +38,11 @@ public class ToioNavigator : MonoBehaviour {
         if (!cm.synced)
             return;
 
+        if (navigation.Reached) {
+            updateNavigation();
+            return;
+        }
+
         foreach (var cubeNavi in cm.navigators)
         {
             var pos = navigation.NextLandmark.Position;
@@ -44,5 +50,12 @@ public class ToioNavigator : MonoBehaviour {
             if (mv.reached)
                 navigation.Next();
         }
+    }
+
+    private void updateNavigation()
+    {
+        var destination = dropdown.value + 1;
+        if (navigation.Destination != destination)
+            navigation = map.GetNavigation(navigation.Destination, destination);
     }
 }

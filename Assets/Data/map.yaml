@@ -15,10 +15,6 @@ landmarks:
     name: spot4
     x: 400
     y: 400
-  - id: 5
-    name: spot5
-    x: 200
-    y: 200
 
 paths:
   - from: 1
@@ -28,6 +24,12 @@ paths:
   - from: 2
     to: 4
   - from: 3
-    to: 5
-  - from: 3
     to: 4
+  - from: 2
+    to: 1
+  - from: 3
+    to: 1
+  - from: 4
+    to: 2
+  - from: 4
+    to: 3
