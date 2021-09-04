@@ -91,14 +91,15 @@ namespace TactileMap {
         {
             // 地点のIDとそこまでの長さを短い順に保持
             var queue = new PriorityQueue<double, (int Id, double Length)>(t => t.Length, isDescending: false);
-            // 各地点における, 最短路の距離(Distance)と1つ前の地点(PrevId)
-            var prevLandmark = new Dictionary<int, (int PrevId, double Distance)>();
+            // 各地点における, 最短路の距離(Distance)と1つ前の地点(Id)
+            var prevLandmark = new Dictionary<int, (int Id, double Distance)>();
             foreach (var id in LandmarkIds)
-                prevLandmark[id] = (startId, Double.PositiveInfinity);
+                prevLandmark[id] = (0, Double.PositiveInfinity);
 
             queue.Enqueue((startId, 0.0));
             prevLandmark[startId] = (0, 0.0);
 
+            // Debug.Log(String.Join(",", Route));
             // startからgoalまでの最短路計算
             while(queue.Count > 0)
             {
@@ -108,6 +109,7 @@ namespace TactileMap {
                 var availablePaths = Array.FindAll(Paths, path => path.From == nowId);
                 foreach (var path in availablePaths)
                 {
+                    Debug.LogFormat("{0}, {1}", path.From, path.To);
                     var toDistance = nowDistance + path.Distance;
                     if (prevLandmark[path.To].Distance <= toDistance)
                         continue;
@@ -123,20 +125,31 @@ namespace TactileMap {
             var landmarkId = goalId;
             while (landmarkId != 0)
             {
+                var prevId = prevLandmark[landmarkId].Id;
+                if (prevId == 0)
+                    break;
+
                 route.Insert(0, landmarkId);
-                landmarkId = prevLandmark[landmarkId].PrevId;
+                landmarkId = prevId;
             }
+
+            // routeが空 (= 経路がなかったとき) => 開始地点のみ返す
+            if (route.Count == 0)
+                route.Add(startId);
 
             return new MapNavigation(this, route.ToArray());
         }
     }
 
+
     // 地図上のある経路のナビゲーション
     public struct MapNavigation
     {
-        // 経路 (地点IDの配列で表現)
-        public int[] Route { get; set; }
-        public bool  Reached { get; set; }
+        public int[] Route       { get; private set; }
+        public bool  Reached     { get; private set; }
+
+        public int   Origin         { get => Route[0]; }
+        public int   Destination    { get => Route[Route.Length - 1]; }
         public int   NextLandmarkId { get => Route[nextRouteIndex]; }
         public Landmark NextLandmark
         {
