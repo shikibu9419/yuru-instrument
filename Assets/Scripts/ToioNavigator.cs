@@ -23,7 +23,7 @@ public class ToioNavigator : MonoBehaviour {
         Application.targetFrameRate = 60;
 
         map = Map.InitFromYaml();
-        navigation = new MapNavigation(map, new int[] { 1, 2, 4 });
+        navigation = map.GetNavigation(1, 4);
 
         cm = new CubeManager(connectType);
         await cm.SingleConnect();
