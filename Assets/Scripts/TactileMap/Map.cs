@@ -5,45 +5,10 @@ using System.Collections.Generic;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 using toio.MathUtils;
-using UnityEngine;
 using Utils;
+using UnityEngine;
 
 namespace TactileMap {
-    // 地図における各地点 (建物, 曲がり角etc.)
-    public struct Landmark
-    {
-        public int Id { get; set; }
-        public int X  { get; set; }
-        public int Y  { get; set; }
-        public string Name { get; set; }
-
-        public Vector Position { get => new Vector(X, Y); }
-
-        public Landmark(int id, int x, int y, string name)
-        {
-            Id = id;
-            Name = name;
-            X = x;
-            Y = y;
-        }
-    }
-
-    // 地点同士を結ぶ道
-    public struct LandmarkPath
-    {
-        public int From { get; set; }
-        public int To   { get; set; }
-        public double Distance { get; set; }
-
-        public LandmarkPath(int from, int to)
-        {
-            From = from;
-            To = to;
-            // 特に指定がないなら距離は単一とする
-            Distance = 1.0;
-        }
-    }
-
     // 地図 = 全地点とそれらを結ぶ道の集合
     public class Map
     {
@@ -91,7 +56,7 @@ namespace TactileMap {
         {
             // 地点のIDとそこまでの長さを短い順に保持
             var queue = new PriorityQueue<double, (int Id, double Length)>(t => t.Length, isDescending: false);
-            // 各地点における, 最短路の距離(Distance)と1つ前の地点(Id)
+            // 各地点における, 最短路の距離(Distance)とkey IDをもつ地点の1つ前の地点(Id)
             var prevLandmark = new Dictionary<int, (int Id, double Distance)>();
             foreach (var id in LandmarkIds)
                 prevLandmark[id] = (0, Double.PositiveInfinity);
@@ -99,7 +64,6 @@ namespace TactileMap {
             queue.Enqueue((startId, 0.0));
             prevLandmark[startId] = (0, 0.0);
 
-            // Debug.Log(String.Join(",", Route));
             // startからgoalまでの最短路計算
             while(queue.Count > 0)
             {
@@ -109,7 +73,7 @@ namespace TactileMap {
                 var availablePaths = Array.FindAll(Paths, path => path.From == nowId);
                 foreach (var path in availablePaths)
                 {
-                    Debug.LogFormat("{0}, {1}", path.From, path.To);
+                    // 次の地点候補の距離を計算 (計算値が記録されている値より大きいなら飛ばす)
                     var toDistance = nowDistance + path.Distance;
                     if (prevLandmark[path.To].Distance <= toDistance)
                         continue;
@@ -125,57 +89,15 @@ namespace TactileMap {
             var landmarkId = goalId;
             while (landmarkId != 0)
             {
-                var prevId = prevLandmark[landmarkId].Id;
-                if (prevId == 0)
-                    break;
-
                 route.Insert(0, landmarkId);
-                landmarkId = prevId;
+                landmarkId = prevLandmark[landmarkId].Id;
             }
 
-            // routeが空 (= 経路がなかったとき) => 開始地点のみ返す
-            if (route.Count == 0)
-                route.Add(startId);
+            // routeの要素が1つ (到着点への経路がなかったとき) => 開始地点のみ返す
+            if (route.Count == 1)
+                route = new List<int>() { startId };
 
             return new MapNavigation(this, route.ToArray());
-        }
-    }
-
-
-    // 地図上のある経路のナビゲーション
-    public struct MapNavigation
-    {
-        public int[] Route       { get; private set; }
-        public bool  Reached     { get; private set; }
-
-        public int   Origin         { get => Route[0]; }
-        public int   Destination    { get => Route[Route.Length - 1]; }
-        public int   NextLandmarkId { get => Route[nextRouteIndex]; }
-        public Landmark NextLandmark
-        {
-            get {
-                int nextLandmarkId = this.NextLandmarkId;
-                return Array.Find(map.Landmarks, landmark => landmark.Id == nextLandmarkId);
-            }
-        }
-
-        private Map map;
-        private int nextRouteIndex;
-
-        public MapNavigation(Map map, int[] route)
-        {
-            this.map = map;
-            Route = route;
-            Reached = false;
-            nextRouteIndex = 0;
-        }
-
-        public void Next()
-        {
-            if (Route.Length == nextRouteIndex + 1)
-                Reached = true;
-            else
-                nextRouteIndex++;
         }
     }
 }
