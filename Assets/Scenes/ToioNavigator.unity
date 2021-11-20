@@ -969,7 +969,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dropdown: {fileID: 293438705}
-  connectType: 0
+  connectType: 2
   naviMode: 0
 --- !u!4 &1534951313
 Transform:

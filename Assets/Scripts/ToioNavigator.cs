@@ -13,10 +13,12 @@ public class ToioNavigator : MonoBehaviour {
 
     [SerializeField] private Dropdown dropdown;
     public ConnectType connectType;
-    public Navigator.Mode naviMode = Navigator.Mode.BOIDS;
+    public Navigator.Mode naviMode = Navigator.Mode.AVOID;
 
     private Map map;
     private MapNavigation navigation;
+    private Dictionary<string, Landmark> landmarkByCube = new Dictionary<string, Landmark>();
+    private int N = 1;
 
     async void Start()
     {
@@ -27,10 +29,16 @@ public class ToioNavigator : MonoBehaviour {
         navigation = map.GetNavigation(1, 1);
 
         cm = new CubeManager(connectType);
-        await cm.SingleConnect();
+        await cm.MultiConnect(N);
 
-        foreach (var cubeNavi in cm.navigators)
+        for (var i = 0; i < N; i++)
+        {
+            var cubeNavi = cm.navigators[i];
             cubeNavi.usePred = true;
+            landmarkByCube[cubeNavi.cube.id] = map.Landmarks[i];
+
+            cubeNavi.cube.doubleTapCallback.AddListener("EventScene", OnDoubleTap);
+        }
     }
 
     void Update()
@@ -43,12 +51,26 @@ public class ToioNavigator : MonoBehaviour {
             return;
         }
 
-        foreach (var cubeNavi in cm.navigators)
+        for (var i = 0; i < N; i++)
         {
-            var pos = navigation.NextLandmark.Position;
-            var mv = cubeNavi.Navi2Target(pos).Exec();
-            if (mv.reached)
-                navigation.Next();
+            var cubeNavi = cm.navigators[i];
+            // TODO: Refactor
+            // navigation.GoToNextLandmark();
+            if (i == 0)
+            {
+                var pos = navigation.NextLandmark.Position;
+                var mv = cubeNavi.Navi2Target(pos).Exec();
+                if (mv.reached)
+                    navigation.Next();
+            } else
+            {
+                var pos = landmarkByCube[cubeNavi.cube.id].Position;
+                cubeNavi.Navi2Target(pos).Exec();
+            }
+            if (cubeNavi.cube.isDoubleTap) {
+                Debug.Log("fugapiyo");
+                OnDoubleTap(cubeNavi.cube);
+            }
         }
     }
 
@@ -57,5 +79,11 @@ public class ToioNavigator : MonoBehaviour {
         var destination = dropdown.value + 1;
         if (navigation.Destination != destination)
             navigation = map.GetNavigation(navigation.Destination, destination);
+    }
+
+    public void OnDoubleTap(Cube cube)
+    {
+        Debug.Log("hogefuga");
+        cube.PlayPresetSound(2);
     }
 }

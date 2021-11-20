@@ -1,8 +1,8 @@
 landmarks:
   - id: 1
     name: spot1
-    x: 100
-    y: 100
+    x: 350
+    y: 150
   - id: 2
     name: spot2
     x: 100
@@ -15,6 +15,10 @@ landmarks:
     name: spot4
     x: 400
     y: 400
+  - id: 5
+    name: spot5
+    x: 200
+    y: 200
 
 paths:
   - from: 1
@@ -29,3 +33,7 @@ paths:
     to: 4
   - from: 4
     to: 2
+  - from: 5
+    to: 3
+  - from: 3
+    to: 5
